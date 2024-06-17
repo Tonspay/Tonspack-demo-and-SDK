@@ -28,7 +28,7 @@
 <body>
     <h1 style="text-align: center;">Tonspack mini demo</h1>
     <div class="container">
-        <h1>Tonspack connect wallet</h1>
+        <h1>connect wallet</h1>
         <h3 id = 'connect_context'></h3>
         <ul>
             <li>
@@ -40,7 +40,7 @@
     </div>
 
     <div class="container">
-        <h1>Tonspack sign message</h1>
+        <h1>sign message</h1>
         <input id="presign_message"  placeholder="Input presign message" style="width: 50%;">
         <h3 id = 'sign_context'></h3>
         <ul>
@@ -48,14 +48,14 @@
                 <button onclick="sign_evm()"> EVM sign message </button>
             </li>
             <li>
-                <button onclick="sign_evm()"> SOL sign message </button></li>
-            <li><button onclick="sign_evm()"> TON sign message </button></li>
+                <button onclick="sign_sol()"> SOL sign message </button></li>
+            <li><button onclick="sign_ton()"> TON sign message </button></li>
         </ul>
     </div>
 
 
     <div class="container">
-        <h1>Tonspack send transaction</h1>
+        <h1>send transaction</h1>
         <h3 id = 'transaction_context'></h3>
         <ul>
             <li>
@@ -111,14 +111,14 @@
                 {
                     this.loopInterval = config.loopInterval
                 }else{
-                    this.loopInterval = 500
+                    this.loopInterval = 500 //0.5
                 }
 
                 if(config?.loopTimeout)
                 {
                     this.loopTimeout = config.loopTimeout
                 }else{
-                    this.loopTimeout = 1200
+                    this.loopTimeout = 120 //1min
                 }
             }
 
@@ -218,6 +218,22 @@
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
             var sign = await pack.sign({t:0,i:1},document.getElementById("presign_message").value)
+            console.log("sign",sign)
+            document.getElementById('sign_context').innerHTML = sign
+        }
+        async function sign_sol()
+        {
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var sign = await pack.sign({t:1,i:1},document.getElementById("presign_message").value)
+            console.log("sign",sign)
+            document.getElementById('sign_context').innerHTML = sign
+        }
+        async function sign_ton()
+        {
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var sign = await pack.sign({t:2,i:1},document.getElementById("presign_message").value)
             console.log("sign",sign)
             document.getElementById('sign_context').innerHTML = sign
         }
