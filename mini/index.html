@@ -59,12 +59,26 @@
         <h3 id = 'transaction_context'></h3>
         <ul>
             <li>
-                <button> EVM send txn </button>
+                <button onclick="send_evm()"> EVM send txn </button>
             </li>
             <li>
                 <button> SOL send txn </button></li>
             <li>
                 <button> TON send txn </button></li>
+        </ul>
+    </div>
+
+    <div class="container">
+        <h1>Contract Send</h1>
+        <h3 id = 'contract_context'></h3>
+        <ul>
+            <li>
+                <button onclick="contract_evm()"> EVM contract send </button>
+            </li>
+            <li>
+                <button> SOL contract send </button></li>
+            <li>
+                <button> TON contract send </button></li>
         </ul>
     </div>
     <!-- Base require script -->
@@ -78,6 +92,7 @@
     <script type="text/javascript">
         window.Buffer = window.Buffer ?? buffer.Buffer;
     </script>
+            <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
     <!-- *JS main -->
     <script>
         console.log(
@@ -184,8 +199,24 @@
                 window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
                 return await this.loopCheck()
             }
+
+            async send(chian,txs,redirect) {
+                const d =  {
+                                t:2,
+                                i:this.uuid, 
+                                d:txs, 
+                                c:chian, 
+                                r:redirect || null
+                            }
+                window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+                return await this.loopCheck()
+            }
         }
 
+
+        var adds ={
+            evm:""
+        }
         async function connect_evm()
         {
             var pack = new Tonspack();
@@ -193,6 +224,7 @@
             var connect = await pack.connect({t:0,i:1})
             console.log("connect",connect)
             document.getElementById('connect_context').innerHTML = connect
+            adds.evm = connect
         }
 
         async function connect_sol()
@@ -238,6 +270,376 @@
             document.getElementById('sign_context').innerHTML = sign
         }
         
+
+        async function send_evm()
+        {
+            var chain = {t:0,i:97} //tbsc
+            var txns = {
+                t:"0xe88C20f656dE083F593D172e8cF7C5d0Fd2E07A5",
+                v:"100000"
+            }
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var txn = await pack.send(chain,txns)
+            console.log("sendtxn",txn)
+            document.getElementById('transaction_context').innerHTML = txn
+        }
+
+
+        async function send_sol()
+        {
+          
+        }
+
+        async function contract_evm()
+        {
+            var chain = {t:0,i:97} //tbsc
+
+            var pack = new Tonspack();
+            // var add = await pack.connect(chain);
+            if(true)
+            {
+                //Connect wallet to get the user address
+
+                window.web3 = new Web3(window.ethereum);
+                var ct = await load_contract('0x263aD853F020075De3FC1D3e24e9d8E88BcD9182')
+                console.log(ct)
+                const cts = await ct.methods.transfer(
+                    '0xe88C20f656dE083F593D172e8cF7C5d0Fd2E07A5' , 
+                    "10000000",
+                    '2jnass')
+                console.log(cts)
+                const data = (cts.encodeABI());
+
+                var txns = {
+                    t:"0x263aD853F020075De3FC1D3e24e9d8E88BcD9182",
+                    v:"10000000",
+                    d:data
+                }
+                console.log('taw txns : ',txns)
+                var txn = await pack.send(chain,txns)
+                console.log("sendtxn",txn)
+                document.getElementById('contract_context').innerHTML = txn
+            }
+
+        }
+
+        async function load_contract(contract) {
+    return await new window.web3.eth.Contract([
+      {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "originFrom",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amountFinal",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amountRouter",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "isPrepaid",
+            "type": "bool"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
+          }
+        ],
+        "name": "pay",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "id",
+            "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "originFrom",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amountFinal",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amountRouter",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "isPrepaid",
+            "type": "bool"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
+          }
+        ],
+        "name": "payToken",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdraw",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "time",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdrawToken",
+        "type": "event"
+      },
+      {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "name": "transfer",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "routerAmount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "id",
+            "type": "string"
+          }
+        ],
+        "name": "transferToken",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdrawTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "withdraws",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ], contract);
+}
+
     </script>
 </body>
 </html>
