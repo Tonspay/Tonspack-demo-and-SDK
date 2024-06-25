@@ -1339,7 +1339,6 @@ class Tonspack{
         for(var i = 0 ; i < this.loopTimeout ; i++)
         {
             const ret = await this.check_request_action()
-            console.log(ret)
             if(ret.data)
             {
                 return ret.data
