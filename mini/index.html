@@ -62,7 +62,7 @@
                 <button onclick="send_evm()"> EVM send txn </button>
             </li>
             <li>
-                <button> SOL send txn </button></li>
+                <button onclick="send_sol()"> SOL send txn </button></li>
             <li>
                 <button> TON send txn </button></li>
         </ul>
@@ -83,9 +83,10 @@
     </div>
     <!-- Base require script -->
     <!-- *JS base58 -->
-    <script src="./script/jsbn.js"></script>
+    <!-- <script src="./script/jsbn.js"></script>
     <script src="./script/jsbn2.js"></script>
-    <script src="./script/base58.js"></script>
+    <script src="./script/base58.js"></script> -->
+    <script src="./script/tonspack.full.min.js"></script>
 
     <script src="https://bundle.run/buffer@6.0.3"></script>
     <!-- *JS buffer -->
@@ -93,125 +94,126 @@
         window.Buffer = window.Buffer ?? buffer.Buffer;
     </script>
             <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+            <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
     <!-- *JS main -->
     <script>
         console.log(
             base58.encode( Buffer.from("https://t.me/tonspack_bot/connect?startapp="))
         )
-        class Tonspack{
-            constructor(uuid,config)
-            {
-                if(uuid)
-                {
-                    this.uuid = uuid
-                }else{
-                    this.uuid = crypto.randomUUID();
-                }
+        // class Tonspack{
+        //     constructor(uuid,config)
+        //     {
+        //         if(uuid)
+        //         {
+        //             this.uuid = uuid
+        //         }else{
+        //             this.uuid = crypto.randomUUID();
+        //         }
 
-                if(config?.baseurl)
-                {
-                    this.baseurl = config.baseurl
-                }else{
-                    this.baseurl = "https://pack.tons.ink/api"
-                }
+        //         if(config?.baseurl)
+        //         {
+        //             this.baseurl = config.baseurl
+        //         }else{
+        //             this.baseurl = "https://pack.tons.ink/api"
+        //         }
 
-                if(config?.actionUrl)
-                {
-                    this.actionUrl = config.actionUrl
-                }else{
-                    this.actionUrl = 'https://t.me/tonspack_bot/connect?startapp='
-                }
+        //         if(config?.actionUrl)
+        //         {
+        //             this.actionUrl = config.actionUrl
+        //         }else{
+        //             this.actionUrl = 'https://t.me/tonspack_bot/connect?startapp='
+        //         }
 
-                if(config?.loopInterval)
-                {
-                    this.loopInterval = config.loopInterval
-                }else{
-                    this.loopInterval = 500 //0.5
-                }
+        //         if(config?.loopInterval)
+        //         {
+        //             this.loopInterval = config.loopInterval
+        //         }else{
+        //             this.loopInterval = 500 //0.5
+        //         }
 
-                if(config?.loopTimeout)
-                {
-                    this.loopTimeout = config.loopTimeout
-                }else{
-                    this.loopTimeout = 120 //1min
-                }
-            }
+        //         if(config?.loopTimeout)
+        //         {
+        //             this.loopTimeout = config.loopTimeout
+        //         }else{
+        //             this.loopTimeout = 120 //1min
+        //         }
+        //     }
 
-            async loopCheck() {
-                for(var i = 0 ; i < this.loopTimeout ; i++)
-                {
-                    const ret = await this.check_request_action()
-                    console.log(ret)
-                    if(ret.data)
-                    {
-                        return ret.data
-                    }
-                    await this.sleep(this.loopInterval)
-                }
-                return {
-                    status:false,
-                    reason:"user operation timeout"
-                }
-            }
+        //     async loopCheck() {
+        //         for(var i = 0 ; i < this.loopTimeout ; i++)
+        //         {
+        //             const ret = await this.check_request_action()
+        //             console.log(ret)
+        //             if(ret.data)
+        //             {
+        //                 return ret.data
+        //             }
+        //             await this.sleep(this.loopInterval)
+        //         }
+        //         return {
+        //             status:false,
+        //             reason:"user operation timeout"
+        //         }
+        //     }
 
-            async sleep (ms) {
-                return new Promise((resolve) => {
-                setTimeout(resolve, ms);
-                });
-            }
-            async check_request_action(){
-                try{
-                    return (await fetch(this.baseurl+'/result/'+this.uuid,{
-                        method: "GET",
-                        headers: {},
-                        redirect: 'follow'
-                    })).json()
-                }catch(e)
-                {
-                    console.error(e)
-                    return false;
-                }
-            }
+        //     async sleep (ms) {
+        //         return new Promise((resolve) => {
+        //         setTimeout(resolve, ms);
+        //         });
+        //     }
+        //     async check_request_action(){
+        //         try{
+        //             return (await fetch(this.baseurl+'/result/'+this.uuid,{
+        //                 method: "GET",
+        //                 headers: {},
+        //                 redirect: 'follow'
+        //             })).json()
+        //         }catch(e)
+        //         {
+        //             console.error(e)
+        //             return false;
+        //         }
+        //     }
 
-            async connect(chian,redirect) {
-                const site = window.location.origin
+        //     async connect(chian,redirect) {
+        //         const site = window.location.origin
                 
-                const d =  {
-                                t:0,
-                                i:this.uuid, 
-                                d:site, 
-                                c:chian, 
-                                r:redirect || null
-                            }
+        //         const d =  {
+        //                         t:0,
+        //                         i:this.uuid, 
+        //                         d:site, 
+        //                         c:chian, 
+        //                         r:redirect || null
+        //                     }
 
-                window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-                return await this.loopCheck()
-            }
+        //         window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        //         return await this.loopCheck()
+        //     }
 
-            async sign(chian,sign,redirect) {
-                const d =  {
-                                t:1,
-                                i:this.uuid, 
-                                d:sign, 
-                                c:chian, 
-                                r:redirect || null
-                            }
-                window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-                return await this.loopCheck()
-            }
+        //     async sign(chian,sign,redirect) {
+        //         const d =  {
+        //                         t:1,
+        //                         i:this.uuid, 
+        //                         d:sign, 
+        //                         c:chian, 
+        //                         r:redirect || null
+        //                     }
+        //         window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        //         return await this.loopCheck()
+        //     }
 
-            async send(chian,txs,redirect) {
-                const d =  {
-                                t:2,
-                                i:this.uuid, 
-                                d:txs, 
-                                c:chian, 
-                                r:redirect || null
-                            }
-                window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
-                return await this.loopCheck()
-            }
-        }
+        //     async send(chian,txs,redirect) {
+        //         const d =  {
+        //                         t:2,
+        //                         i:this.uuid, 
+        //                         d:txs, 
+        //                         c:chian, 
+        //                         r:redirect || null
+        //                     }
+        //         window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        //         return await this.loopCheck()
+        //     }
+        // }
 
 
         var adds ={
@@ -288,7 +290,33 @@
 
         async function send_sol()
         {
-          
+          var chain = {t:1,i:0} //solana
+          var pack = new Tonspack();
+          var connect = await pack.connect({t:1,i:1})
+          if(connect)
+          {
+            var txns = await solana_txn_generate(connect,connect,"Hello world") 
+            console.log('pack.txns',txns)
+            var pack = new Tonspack();
+            var txn = await pack.send(chain,txns)
+            console.log("sendtxn",txn)
+            let sol_rpc_url = "https://solana-mainnet.g.alchemy.com/v2/2HWIMGYhZm3HJXTVlyfVWThcSpgP9Twu"
+            const connection = new solanaWeb3.Connection(sol_rpc_url);
+
+            var rawData = Buffer.from(txn,'base64');
+            console.log(rawData)
+            var tx = solanaWeb3.Transaction.from(rawData)
+            console.log(tx)
+            var ret = await connection.sendRawTransaction(
+              tx.serialize(),
+              {
+                maxRetries: 5
+              }
+            )
+            console.log(ret)
+            document.getElementById('transaction_context').innerHTML = ret
+          }
+
         }
 
         async function contract_evm()
@@ -323,6 +351,72 @@
             }
 
         }
+
+
+        async function solana_txn_generate(from,to,message)
+{
+  let sol_rpc_url = "https://solana-mainnet.g.alchemy.com/v2/2HWIMGYhZm3HJXTVlyfVWThcSpgP9Twu"
+  const connection = new solanaWeb3.Connection(sol_rpc_url);
+  var transaction = new solanaWeb3.Transaction()
+
+
+  var paymentTx = false;
+    //SOL transfer
+    console.log("🚧 SOL transfer")
+    paymentTx = solanaWeb3.SystemProgram.transfer({
+      fromPubkey: new solanaWeb3.PublicKey(from),
+      toPubkey: new solanaWeb3.PublicKey(to),
+      lamports: 100000
+    })
+
+  if(!paymentTx)
+  {
+    window.alert("🚧 ERROR During TX constructing")
+  }
+  transaction.add(
+    paymentTx
+  )
+    //Noticed transaction transfer 
+  transaction.add(
+      solanaWeb3.SystemProgram.transfer({
+        fromPubkey: new solanaWeb3.PublicKey(from),
+        toPubkey: new solanaWeb3.PublicKey(to),
+          lamports: (100000)
+      }),
+  );
+
+    //Message transaction transfer 
+  transaction.add(
+      new solanaWeb3.TransactionInstruction({
+          keys: [{ pubkey: new solanaWeb3.PublicKey('FZDTLUxb1SjNwxDLkwC6LgpBHbRFcceVaHcZuyefS6qt'), isSigner: true, isWritable: true }],
+          data: Buffer.from(message, "utf-8"),
+          programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+        })
+  );
+
+  const modifyComputeUnits = solanaWeb3.ComputeBudgetProgram.setComputeUnitLimit({ 
+  units: 1000000 
+});
+transaction.add(
+  modifyComputeUnits
+)
+
+const addPriorityFee = solanaWeb3.ComputeBudgetProgram.setComputeUnitPrice({ 
+  microLamports: 1 
+});
+
+transaction.add(
+  addPriorityFee
+)
+
+  transaction.feePayer =  new solanaWeb3.PublicKey(from);
+  let blockhashObj = await connection.getRecentBlockhash();
+  
+  transaction.recentBlockhash = await blockhashObj.blockhash;
+
+  return base58.encode( await transaction.serializeMessage());
+}
+    
 
         async function load_contract(contract) {
     return await new window.web3.eth.Contract([
