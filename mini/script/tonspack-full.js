@@ -1386,7 +1386,7 @@ class Tonspack{
   }
 
   async sign(chian,sign,redirect,preconnect) {
-      const d =  {
+      var d =  {
                       t:1,
                       i:this.uuid, 
                       d:sign, 
@@ -1395,10 +1395,12 @@ class Tonspack{
                   }
       if(preconnect)
       {
+          var hd = new Headers();
+          hd.append("Content-Type", "application/json");
           var op = {
             method: 'POST',
-            headers:{},
-            body: base58.encode(Buffer.from(JSON.stringify(d))),
+            headers:hd,
+            body: JSON.stringify({"data":base58.encode(Buffer.from(JSON.stringify(d)))}),
             redirect: 'follow'
           };
           d = {
@@ -1411,7 +1413,7 @@ class Tonspack{
   }
 
   async send(chian,txs,redirect,preconnect) {
-      const d =  {
+      var d =  {
                       t:2,
                       i:this.uuid, 
                       d:txs, 
@@ -1420,10 +1422,12 @@ class Tonspack{
                   }
       if(preconnect)
       {
+          var hd = new Headers();
+          hd.append("Content-Type", "application/json");
           var op = {
             method: 'POST',
-            headers:{},
-            body: base58.encode(Buffer.from(JSON.stringify(d))),
+            headers:hd,
+            body: JSON.stringify({"data":base58.encode(Buffer.from(JSON.stringify(d)))}),
             redirect: 'follow'
           };
           d = {
