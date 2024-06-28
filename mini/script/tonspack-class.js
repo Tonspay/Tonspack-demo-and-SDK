@@ -41,7 +41,6 @@ class Tonspack{
         for(var i = 0 ; i < this.loopTimeout ; i++)
         {
             const ret = await this.check_request_action()
-            console.log(ret)
             if(ret.data)
             {
                 return ret.data
@@ -88,7 +87,7 @@ class Tonspack{
         return await this.loopCheck()
     }
 
-    async sign(chian,sign,redirect) {
+    async sign(chian,sign,redirect,preconnect) {
         const d =  {
                         t:1,
                         i:this.uuid, 
@@ -96,11 +95,24 @@ class Tonspack{
                         c:chian, 
                         r:redirect || null
                     }
+        if(preconnect)
+        {
+            var op = {
+              method: 'POST',
+              headers:{},
+              body: base58.encode(Buffer.from(JSON.stringify(d))),
+              redirect: 'follow'
+            };
+            d = {
+                i:await fetch(`${this.baseurl}/preconnect/${d.i}`, op),
+                p:1
+            }
+        }
         window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
         return await this.loopCheck()
     }
 
-    async send(chian,txs,redirect) {
+    async send(chian,txs,redirect,preconnect) {
         const d =  {
                         t:2,
                         i:this.uuid, 
@@ -108,7 +120,21 @@ class Tonspack{
                         c:chian, 
                         r:redirect || null
                     }
+        if(preconnect)
+        {
+            var op = {
+              method: 'POST',
+              headers:{},
+              body: base58.encode(Buffer.from(JSON.stringify(d))),
+              redirect: 'follow'
+            };
+            d = {
+                i:await fetch(`${this.baseurl}/preconnect/${d.i}`, op),
+                p:1
+            }
+        }
         window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
         return await this.loopCheck()
     }
 }
+
