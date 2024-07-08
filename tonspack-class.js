@@ -105,8 +105,9 @@ class Tonspack{
               body: JSON.stringify({"data":base58.encode(Buffer.from(JSON.stringify(d)))}),
               redirect: 'follow'
             };
+            await fetch(`${this.baseurl}/preconnect/${d.i}`, op);
             d = {
-                i:await fetch(`${this.baseurl}/preconnect/${d.i}`, op),
+                i:this.uuid, 
                 p:1
             }
         }
@@ -132,8 +133,9 @@ class Tonspack{
               body: JSON.stringify({"data":base58.encode(Buffer.from(JSON.stringify(d)))}),
               redirect: 'follow'
             };
+            await fetch(`${this.baseurl}/preconnect/${d.i}`, op);
             d = {
-                i:await fetch(`${this.baseurl}/preconnect/${d.i}`, op),
+                i:this.uuid, 
                 p:1
             }
         }
@@ -141,4 +143,3 @@ class Tonspack{
         return await this.loopCheck()
     }
 }
-
