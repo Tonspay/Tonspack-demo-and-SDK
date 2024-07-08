@@ -83,10 +83,10 @@
     </div>
     <!-- Base require script -->
     <!-- *JS base58 -->
-    <!-- <script src="./script/jsbn.js"></script> -->
-    <!-- <script src="./script/jsbn2.js"></script> -->
-    <!-- <script src="./script/base58.js"></script> -->
-    <script src="./script/tonspack.full.min.js"></script>
+    <script src="./script/jsbn.js"></script>
+    <script src="./script/jsbn2.js"></script>
+    <script src="./script/base58.js"></script>
+    <!-- <script src="./script/tonspack.full.min.js"></script> -->
 
     <script src="https://bundle.run/buffer@6.0.3"></script>
     <!-- *JS buffer -->
@@ -97,9 +97,151 @@
             <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
     <!-- *JS main -->
     <script>
-        console.log(
-            base58.encode( Buffer.from("https://t.me/tonspack_bot/connect?startapp="))
-        )
+class Tonspack{
+    constructor(uuid,config)
+    {
+        if(uuid)
+        {
+            this.uuid = uuid
+        }else{
+            this.uuid = crypto.randomUUID();
+        }
+
+        if(config?.baseurl)
+        {
+            this.baseurl = config.baseurl
+        }else{
+            this.baseurl = "https://pack.tons.ink/api"
+        }
+
+        if(config?.actionUrl)
+        {
+            this.actionUrl = config.actionUrl
+        }else{
+            this.actionUrl = 'https://t.me/tonspack_bot/connect?startapp='
+        }
+
+        if(config?.loopInterval)
+        {
+            this.loopInterval = config.loopInterval
+        }else{
+            this.loopInterval = 500 //0.5
+        }
+
+        if(config?.loopTimeout)
+        {
+            this.loopTimeout = config.loopTimeout
+        }else{
+            this.loopTimeout = 120 //1min
+        }
+    }
+
+    async loopCheck() {
+        for(var i = 0 ; i < this.loopTimeout ; i++)
+        {
+            const ret = await this.check_request_action()
+            if(ret.data)
+            {
+                return ret.data
+            }
+            await this.sleep(this.loopInterval)
+        }
+        return {
+            status:false,
+            reason:"user operation timeout"
+        }
+    }
+
+    async sleep (ms) {
+        return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+        });
+    }
+    async check_request_action(){
+        try{
+            return (await fetch(this.baseurl+'/result/'+this.uuid,{
+                method: "GET",
+                headers: {},
+                redirect: 'follow'
+            })).json()
+        }catch(e)
+        {
+            console.error(e)
+            return false;
+        }
+    }
+
+    async connect(chian,redirect) {
+        const site = window.location.origin
+        
+        const d =  {
+                        t:0,
+                        i:this.uuid, 
+                        d:site, 
+                        c:chian, 
+                        r:redirect || null
+                    }
+
+        window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        return await this.loopCheck()
+    }
+
+    async sign(chian,sign,redirect,preconnect) {
+        var d =  {
+                        t:1,
+                        i:this.uuid, 
+                        d:sign, 
+                        c:chian, 
+                        r:redirect || null
+                    }
+        if(preconnect)
+        {
+            var hd = new Headers();
+            hd.append("Content-Type", "application/json");
+            var op = {
+              method: 'POST',
+              headers:hd,
+              body: JSON.stringify({"data":base58.encode(Buffer.from(JSON.stringify(d)))}),
+              redirect: 'follow'
+            };
+            await fetch(`${this.baseurl}/preconnect/${d.i}`, op);
+            d = {
+                i:this.uuid, 
+                p:1
+            }
+        }
+        window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        return await this.loopCheck()
+    }
+
+    async send(chian,txs,redirect,preconnect) {
+        var d =  {
+                        t:2,
+                        i:this.uuid, 
+                        d:txs, 
+                        c:chian, 
+                        r:redirect || null
+                    }
+        if(preconnect)
+        {
+            var hd = new Headers();
+            hd.append("Content-Type", "application/json");
+            var op = {
+              method: 'POST',
+              headers:hd,
+              body: JSON.stringify({"data":base58.encode(Buffer.from(JSON.stringify(d)))}),
+              redirect: 'follow'
+            };
+            await fetch(`${this.baseurl}/preconnect/${d.i}`, op);
+            d = {
+                i:this.uuid, 
+                p:1
+            }
+        }
+        window.open(this.actionUrl+base58.encode(Buffer.from(JSON.stringify(d))),"newwindow","height=800, width=400, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no");
+        return await this.loopCheck()
+    }
+}
 
         var adds ={
             evm:""
@@ -167,7 +309,7 @@
             }
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var txn = await pack.send(chain,txns)
+            var txn = await pack.send(chain,txns,"",true)
             console.log("sendtxn",txn)
             document.getElementById('transaction_context').innerHTML = txn
         }
@@ -185,7 +327,7 @@
             var pack = new Tonspack();
             var txn = await pack.send(chain,txns,"",true)
             console.log("sendtxn",txn)
-            let sol_rpc_url = "https://solana-mainnet.g.alchemy.com/v2/2HWIMGYhZm3HJXTVlyfVWThcSpgP9Twu"
+            let sol_rpc_url = "https://mainnet.helius-rpc.com/?api-key=a32e6052-b2ed-491f-9521-ac6df5e9665a"
             const connection = new solanaWeb3.Connection(sol_rpc_url);
 
             var rawData = Buffer.from(txn,'base64');
@@ -195,7 +337,8 @@
             var ret = await connection.sendRawTransaction(
               tx.serialize(),
               {
-                maxRetries: 5
+                skipPreflight: true,
+                maxRetries: 3
               }
             )
             console.log(ret)
@@ -240,7 +383,7 @@
 
         async function solana_txn_generate(from,to,message)
 {
-  let sol_rpc_url = "https://solana-mainnet.g.alchemy.com/v2/2HWIMGYhZm3HJXTVlyfVWThcSpgP9Twu"
+  let sol_rpc_url = "https://mainnet.helius-rpc.com/?api-key=a32e6052-b2ed-491f-9521-ac6df5e9665a"
   const connection = new solanaWeb3.Connection(sol_rpc_url);
   var transaction = new solanaWeb3.Transaction()
 
@@ -251,7 +394,7 @@
     paymentTx = solanaWeb3.SystemProgram.transfer({
       fromPubkey: new solanaWeb3.PublicKey(from),
       toPubkey: new solanaWeb3.PublicKey(to),
-      lamports: 100000
+      lamports: 1
     })
 
   if(!paymentTx)
@@ -266,39 +409,50 @@
       solanaWeb3.SystemProgram.transfer({
         fromPubkey: new solanaWeb3.PublicKey(from),
         toPubkey: new solanaWeb3.PublicKey(to),
-          lamports: (100000)
+          lamports: (1)
       }),
   );
 
     //Message transaction transfer 
-  transaction.add(
-      new solanaWeb3.TransactionInstruction({
-          keys: [{ pubkey: new solanaWeb3.PublicKey('FZDTLUxb1SjNwxDLkwC6LgpBHbRFcceVaHcZuyefS6qt'), isSigner: true, isWritable: true }],
-          data: Buffer.from(message, "utf-8"),
-          programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
-        })
-  );
+//   transaction.add(
+//       new solanaWeb3.TransactionInstruction({
+//           keys: [{ pubkey: new solanaWeb3.PublicKey(from), isSigner: true, isWritable: true }],
+//           data: Buffer.from(message, "utf-8"),
+//           programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+//         })
+//   );
+//   transaction.add(
+//     solanaWeb3.ComputeBudgetProgram.setComputeUnitLimit({ 
+//   units: 100000 
+// })
+// )
+// transaction.add(
+//   solanaWeb3.ComputeBudgetProgram.setComputeUnitPrice({ 
+//   microLamports: 200000
+// })
+// )
+
+
 
   const modifyComputeUnits = solanaWeb3.ComputeBudgetProgram.setComputeUnitLimit({ 
-  units: 1000000 
+  units: 1000 
 });
 transaction.add(
   modifyComputeUnits
 )
 
 const addPriorityFee = solanaWeb3.ComputeBudgetProgram.setComputeUnitPrice({ 
-  microLamports: 1 
+  microLamports: 200000
 });
 
 transaction.add(
   addPriorityFee
 )
 
+
   transaction.feePayer =  new solanaWeb3.PublicKey(from);
   let blockhashObj = await connection.getRecentBlockhash();
-  
   transaction.recentBlockhash = await blockhashObj.blockhash;
-
   return base58.encode( await transaction.serializeMessage());
 }
     
