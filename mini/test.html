@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Test</title>
+    </head>
+
+    <body >
+        <h1>Mount : </h1>
+        <h1 id="test">Test</h1>
+        <button id="btn" onclick="init()"> test init</button>
+        <script>
+            document.getElementById("btn").onclick()
+              async function sleep (ms) {
+                    return new Promise((resolve) => {
+                    setTimeout(resolve, ms);
+                    });
+                }
+            async function init()
+            {
+                try {
+                    await sleep(1000);
+                var test = window.open("https://t.me/tonspack_bot/app");
+                console.log(test);
+                window.alert(test)
+                document.getElementById("test").innerHTML = test
+
+                while(true)
+                {
+
+                    await sleep(1000);
+                    if(test==null)
+                    {
+                        test = window.open("https://t.me/tonspack_bot/app");
+                        // window.alert(test)
+                        
+                    }else
+                    {
+                        console.log(test.closed)
+                        document.getElementById("test").innerHTML = test.closed
+                        // window.alert(test.closed)
+                    }
+
+                }
+                } catch (error) {
+                    window.aler(error)
+                }
+
+            }
+        </script>
+    </body>
+</html>

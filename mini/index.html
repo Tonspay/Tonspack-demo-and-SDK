@@ -36,6 +36,9 @@
             </li>
             <li><button onclick="connect_sol()"> Connect to SOL </button>
             <li><button onclick="connect_ton()"> Connect to TON </button>
+              <li>
+                <button onclick="connect_btc()"> Connect to Bitcoin </button>
+            </li>
         </ul>
     </div>
 
@@ -45,11 +48,15 @@
         <h3 id = 'sign_context'></h3>
         <ul>
             <li>
-                <button onclick="sign_evm()"> EVM sign message </button>
+                <button onclick="sign_evm()"> ARB sign message </button>
             </li>
             <li>
                 <button onclick="sign_sol()"> SOL sign message </button></li>
             <li><button onclick="sign_ton()"> TON sign message </button></li>
+
+            <li>
+              <button onclick="sign_btc()"> Sign BitcoinMessage </button>
+          </li>
         </ul>
     </div>
 
@@ -59,12 +66,12 @@
         <h3 id = 'transaction_context'></h3>
         <ul>
             <li>
-                <button onclick="send_evm()"> EVM send txn </button>
+                <button onclick="send_evm()"> tBsc send txn </button>
             </li>
             <li>
                 <button onclick="send_sol()"> SOL send txn </button></li>
-            <li>
-                <button> TON send txn </button></li>
+            <li><button onclick="send_ton()"> TON send txn </button></li>
+            <li><button onclick="send_btc()"> Bitcoin send txn </button></li>
         </ul>
     </div>
 
@@ -73,10 +80,10 @@
         <h3 id = 'contract_context'></h3>
         <ul>
             <li>
-                <button onclick="contract_evm()"> EVM contract send </button>
+                <button onclick="contract_evm()"> tBsc contract send </button>
             </li>
             <li>
-                <button> SOL contract send </button></li>
+                <button onclick="window.open('https://t.me/Tonspack_bot/gate?startapp=25K6n8x9BaUPfne6zFhSW9B5S9ZerNX5aeytN78')"> SOL contract send </button></li>
             <li>
                 <button> TON contract send </button></li>
         </ul>
@@ -106,7 +113,7 @@
         {
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var connect = await pack.connect({t:0,i:1})
+            var connect = await pack.connect({t:0,i:42161})
             console.log("connect",connect)
             document.getElementById('connect_context').innerHTML = connect
             adds.evm = connect
@@ -129,12 +136,20 @@
             console.log("connect",connect)
             document.getElementById('connect_context').innerHTML = connect
         }
+        async function connect_ton()
+        {
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var connect = await pack.connect({t:3,i:0})
+            console.log("connect",connect)
+            document.getElementById('connect_context').innerHTML = connect
+        }
 
         async function sign_evm()
         {
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var sign = await pack.sign({t:0,i:1},document.getElementById("presign_message").value)
+            var sign = await pack.sign({t:0,i:42161},document.getElementById("presign_message").value,"",true)
             console.log("sign",sign)
             document.getElementById('sign_context').innerHTML = sign
         }
@@ -142,7 +157,7 @@
         {
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var sign = await pack.sign({t:1,i:1},document.getElementById("presign_message").value)
+            var sign = await pack.sign({t:1,i:1},document.getElementById("presign_message").value,"",true)
             console.log("sign",sign)
             document.getElementById('sign_context').innerHTML = sign
         }
@@ -150,7 +165,15 @@
         {
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var sign = await pack.sign({t:2,i:1},document.getElementById("presign_message").value)
+            var sign = await pack.sign({t:2,i:1},document.getElementById("presign_message").value,"",true)
+            console.log("sign",sign)
+            document.getElementById('sign_context').innerHTML = sign
+        }
+        async function sign_btc()
+        {
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var sign = await pack.sign({t:3,i:1},document.getElementById("presign_message").value,"",true)
             console.log("sign",sign)
             document.getElementById('sign_context').innerHTML = sign
         }
@@ -161,6 +184,20 @@
             var chain = {t:0,i:97} //tbsc
             var txns = {
                 t:"0xe88C20f656dE083F593D172e8cF7C5d0Fd2E07A5",
+                v:"100000"
+            }
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var txn = await pack.send(chain,txns,"",true)
+            console.log("sendtxn",txn)
+            document.getElementById('transaction_context').innerHTML = txn
+        }
+
+        async function send_btc()
+        {
+            var chain = {t:3,i:0} //tbsc
+            var txns = {
+                t:"159trGW9CKjt6pxcP5BwXJQPyd8Dx9yQr6",
                 v:"100000"
             }
             var pack = new Tonspack();
@@ -230,7 +267,7 @@
                     d:data
                 }
                 console.log('taw txns : ',txns)
-                var txn = await pack.send(chain,txns)
+                var txn = await pack.send(chain,txns,true)
                 console.log("sendtxn",txn)
                 document.getElementById('contract_context').innerHTML = txn
             }
@@ -271,13 +308,13 @@
   );
 
     //Message transaction transfer 
-//   transaction.add(
-//       new solanaWeb3.TransactionInstruction({
-//           keys: [{ pubkey: new solanaWeb3.PublicKey(from), isSigner: true, isWritable: true }],
-//           data: Buffer.from(message, "utf-8"),
-//           programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
-//         })
-//   );
+  transaction.add(
+      new solanaWeb3.TransactionInstruction({
+          keys: [{ pubkey: new solanaWeb3.PublicKey(from), isSigner: true, isWritable: true }],
+          data: Buffer.from(message, "utf-8"),
+          programId: new solanaWeb3.PublicKey("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+        })
+  );
 //   transaction.add(
 //     solanaWeb3.ComputeBudgetProgram.setComputeUnitLimit({ 
 //   units: 100000 
@@ -312,9 +349,12 @@
   transaction.recentBlockhash = await blockhashObj.blockhash;
   return JSON.stringify(
     [
-      base58.encode(
-      await transaction.serializeMessage()
+      {
+        t:0,
+        d:base58.encode(
+        await transaction.serializeMessage()
       )
+      }
     ]
   );
 }
