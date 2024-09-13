@@ -1,6 +1,9 @@
 <!doctype html>
 <html>
 <head>
+  <script src="https://unpkg.com/tonweb@latest/dist/tonweb.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/tweetnacl-util@0.15.0/nacl-util.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.1/nacl.min.js"></script> -->
     <meta charset="utf-8">
     <title>Tonspack Demo</title>
     <style>
@@ -75,6 +78,7 @@
         </ul>
     </div>
 
+
     <div class="container">
         <h1>Contract Send</h1>
         <h3 id = 'contract_context'></h3>
@@ -88,6 +92,16 @@
                 <button> TON contract send </button></li>
         </ul>
     </div>
+
+    <div class="container">
+      <h1>Debug Button</h1>
+      <h3 id = 'debug_context'></h3>
+      <ul>
+          <li>
+              <button onclick="debug_nacl()"> Test Nacl </button>
+          </li>
+      </ul>
+  </div>
     <!-- Base require script -->
     <!-- *JS base58 -->
     <!-- <script src="./script/jsbn.js"></script>
@@ -105,6 +119,10 @@
     <!-- *JS main -->
     <script>
 
+        async function debug_nacl()
+        {
+          console.log("🚧 Nacl test :: ",nacl)
+        }
 
         var adds ={
             evm:""
@@ -136,7 +154,7 @@
             console.log("connect",connect)
             document.getElementById('connect_context').innerHTML = connect
         }
-        async function connect_ton()
+        async function connect_btc()
         {
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
@@ -181,17 +199,55 @@
 
         async function send_evm()
         {
-            var chain = {t:0,i:97} //tbsc
+            var chain = {t:3,i:0} //tbsc
             var txns = {
                 t:"0xe88C20f656dE083F593D172e8cF7C5d0Fd2E07A5",
                 v:"100000"
             }
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var txn = await pack.send(chain,txns,"",true)
+            var txn = await pack.send(chain,JSON.stringify(txns),"",true)
             console.log("sendtxn",txn)
             document.getElementById('transaction_context').innerHTML = txn
         }
+
+        async function send_ton()
+        {
+            var chain = {t:2,i:0} //tbsc
+            let a = new TonWeb.boc.Cell();
+            a.bits.writeUint(0, 32);
+            a.bits.writeString("hello");
+            let hello =  TonWeb.utils.bytesToBase64(await a.toBoc());
+            let b = new TonWeb.boc.Cell();
+            a.bits.writeUint(0, 32);
+            a.bits.writeString("world");
+            let world =  TonWeb.utils.bytesToBase64(await b.toBoc());
+            var txns = [
+            {
+                t:"UQCfrGyktdoeDLO-QysAOJvdlKYDOm0RQSdj2-K4yMA2pTyb",
+                v:"100000",
+                d:""
+            },
+            {
+                t:"UQCfrGyktdoeDLO-QysAOJvdlKYDOm0RQSdj2-K4yMA2pTyb",
+                v:"100000",
+                d:hello
+            },
+            {
+                t:"UQCfrGyktdoeDLO-QysAOJvdlKYDOm0RQSdj2-K4yMA2pTyb",
+                v:"100000",
+                d:world
+            }
+
+            ]
+            // console.log(txns)
+            var pack = new Tonspack();
+            console.log('pack.uuid',pack.uuid)
+            var txn = await pack.send(chain,JSON.stringify(txns),"",true)
+            console.log("sendtxn",txn)
+            document.getElementById('transaction_context').innerHTML = txn
+        }
+
 
         async function send_btc()
         {
@@ -202,7 +258,7 @@
             }
             var pack = new Tonspack();
             console.log('pack.uuid',pack.uuid)
-            var txn = await pack.send(chain,txns,"",true)
+            var txn = await pack.send(chain,JSON.stringify(txns),"",true)
             console.log("sendtxn",txn)
             document.getElementById('transaction_context').innerHTML = txn
         }
@@ -219,12 +275,13 @@
             console.log('pack.txns',txns)
             var pack = new Tonspack();
             var txn = await pack.send(chain,txns,"",true)
+            console.log("🚧 signed txn",txn)
             txn = JSON.parse(txn)
             console.log("sendtxn",txn)
             let sol_rpc_url = "https://mainnet.helius-rpc.com/?api-key=a32e6052-b2ed-491f-9521-ac6df5e9665a"
             const connection = new solanaWeb3.Connection(sol_rpc_url);
 
-            var rawData = Buffer.from(txn[0],'base64');
+            var rawData = Buffer.from(txn[0].d,'base64');
             console.log(rawData)
             var tx = solanaWeb3.Transaction.from(rawData)
             console.log(tx)
@@ -303,7 +360,7 @@
       solanaWeb3.SystemProgram.transfer({
         fromPubkey: new solanaWeb3.PublicKey(from),
         toPubkey: new solanaWeb3.PublicKey(to),
-          lamports: (1)
+          lamports: (100)
       }),
   );
 
