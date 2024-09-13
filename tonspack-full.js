@@ -1381,13 +1381,17 @@ class Tonspack{
           const ret = await this.check_request_action()
           if(ret?.data)
           {
-            if(ret?.key && ret?.key.length > 10)
-            {
+            try{
               let retJson = JSON.parse(ret.data)
               {
-                return this.decode(this.encryptionKp.secretKey,retJson)
+                if(retJson?.nonce && retJson?.ephemPubKey && retJson?.encrypted)
+                {
+                  return this.decode(this.encryptionKp.secretKey,retJson)
+                }
+                return ret.data
               }
-            }else{
+            }catch(e)
+            {
               return ret.data
             }
           }
