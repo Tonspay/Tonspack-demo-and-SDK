@@ -1,0 +1,9 @@
+{
+    "extends": "./tsconfig.all.json",
+    "include": ["./src", "./package.json"],
+    "compilerOptions": {
+        "noEmit": true,
+        "skipLibCheck": true,
+        "jsx": "react"
+    }
+}
